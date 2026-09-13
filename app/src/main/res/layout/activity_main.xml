@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MV Decrypter — RPG Maker MV/MZ"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingBottom="12dp" />
+
+        <Button
+            android:id="@+id/btnPickFiles"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1. Seleccionar archivos cifrados" />
+
+        <TextView
+            android:id="@+id/tvFilesCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="4dp"
+            android:text="Ningún archivo seleccionado" />
+
+        <Button
+            android:id="@+id/btnPickOutput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="2. Elegir carpeta de salida" />
+
+        <TextView
+            android:id="@+id/tvOutputDir"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="4dp"
+            android:text="Ninguna carpeta elegida" />
+
+        <RadioGroup
+            android:id="@+id/rgMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
+
+            <RadioButton
+                android:id="@+id/rbWithKey"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="Descifrar con clave (imágenes, audio .ogg/.m4a)" />
+
+            <RadioButton
+                android:id="@+id/rbRestorePng"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Restaurar PNG sin clave" />
+        </RadioGroup>
+
+        <EditText
+            android:id="@+id/etKey"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Clave hex (32 caracteres), ej: d41d8cd98f00b204e9800998"
+            android:inputType="textNoSuggestions" />
+
+        <Button
+            android:id="@+id/btnDecrypt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="3. Descifrar" />
+
+        <ImageView
+            android:id="@+id/ivPreview"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="12dp"
+            android:scaleType="fitCenter"
+            android:visibility="gone"
+            android:contentDescription="Vista previa" />
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="monospace"
+            android:textIsSelectable="true"
+            android:text="" />
+
+    </LinearLayout>
+</ScrollView>
