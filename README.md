@@ -1,31 +1,35 @@
 # MV Decrypter (Android)
 
 App para Android que descifra archivos cifrados de RPG Maker MV/MZ
-(`.rpgmvp`/`.png_`, `.rpgmvo`/`.ogg_`, `.rpgmvm`/`.m4a_`), inspirada en la
-herramienta web de Petschko (petschko.org/tools/mv_decrypter).
+(`.rpgmvp`/`.png_`, `.rpgmvo`/`.ogg_`, `.rpgmvm`/`.m4a_`) y extrae archivos
+Ren'Py (`.rpa`).
 
-## Cómo funciona el formato
+## Modos
 
-- Los primeros 16 bytes del archivo son una "cabecera falsa" (firma `RPGMV`) y se descartan.
-- Los 16 bytes siguientes del contenido real están cifrados con XOR contra una
-  clave de 16 bytes (32 caracteres hex). Esa clave suele estar en el
-  `System.json` del proyecto, bajo `"encryptionKey"`.
-- El resto del archivo no está cifrado.
+1. **Con clave** (RPG Maker) — funciona para imágenes y audio. Pide la clave hex de 32 caracteres,
+   o detéctala automáticamente desde una imagen con el botón correspondiente.
+2. **Restaurar PNG sin clave** (RPG Maker) — deriva la clave comparando contra la cabecera PNG conocida.
+3. **Extraer .rpa** (Ren'Py) — selecciona un único archivo `.rpa` en el paso 1; la app lee su
+   índice (comprimido con zlib y serializado con pickle de Python — hay un mini-intérprete de
+   pickle incluido, `PickleReader.kt`) y extrae todo su contenido a la carpeta de salida,
+   recreando las subcarpetas originales del juego.
 
-La app tiene dos modos:
+## Sobre assets de Unity
 
-1. **Con clave** — funciona para imágenes y audio. Pide la clave hex de 32 caracteres.
-2. **Restaurar PNG sin clave** — solo para imágenes. Como la cabecera real de
-   cualquier PNG es siempre la misma, la clave se deriva automáticamente
-   comparándola con los bytes cifrados del archivo.
+No están soportados y no está planeado reimplementarlos aquí: el formato de serialización de
+Unity (type trees variables por versión del motor, compresión LZ4/LZMA, decenas de tipos de
+objeto) es de una complejidad muy distinta a RPG Maker o Ren'Py. Para eso usa herramientas ya
+establecidas y mantenidas activamente: **AssetStudio**, **AssetRipper** o **UnityPy**.
 
 ## Uso
 
 1. Abre la app.
-2. Toca **"Seleccionar archivos cifrados"** y elige uno o varios archivos.
-3. Toca **"Elegir carpeta de salida"** (carpeta donde se guardarán los archivos descifrados).
-4. Elige el modo (con clave / restaurar PNG) y, si aplica, pega la clave hex.
-5. Toca **"Descifrar"**. Verás el resultado en el log y una vista previa si es una imagen.
+2. Elige el modo (paso 3).
+3. Toca **"Seleccionar archivos"** — uno o varios para RPG Maker, uno solo (el `.rpa`) para Ren'Py.
+4. Toca **"Elegir carpeta de salida"**.
+5. Si el modo lo requiere, pega o detecta la clave.
+6. Toca el botón principal. La barra de progreso muestra el avance archivo por archivo.
+
 
 ## Compilar el APK sin Android Studio (GitHub Actions)
 
