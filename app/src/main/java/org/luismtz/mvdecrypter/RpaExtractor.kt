@@ -5,7 +5,7 @@ import android.net.Uri
 import android.os.ParcelFileDescriptor
 import androidx.documentfile.provider.DocumentFile
 import java.io.FileInputStream
-import java.io.RandomAccessFile
+import java.nio.ByteBuffer
 import java.util.zip.Inflater
 
 /**
@@ -108,7 +108,7 @@ class RpaExtractor(private val resolver: ContentResolver) {
             ?: throw IllegalStateException("no se pudo abrir el archivo")
 
         pfd.use {
-            val raf = RandomAccessFile(it.fileDescriptor)
+            val channel = FileInputStream(it.fileDescriptor).channel
             val dirCache = HashMap<String, DocumentFile>()
             dirCache[""] = destDir
 
@@ -138,13 +138,12 @@ class RpaExtractor(private val resolver: ContentResolver) {
 
                     val dataLen = (entry.length - entry.prefix.size).toInt()
                     val buf = ByteArray(dataLen)
-                    // FileDescriptor compartido: usamos pread vía canal posicionado para no
-                    // interferir con la posición usada por otras lecturas.
-                    synchronized(raf) {
-                        raf.seek(entry.offset)
+                    synchronized(channel) {
+                        channel.position(entry.offset)
+                        val bb = ByteBuffer.wrap(buf)
                         var readTotal = 0
                         while (readTotal < dataLen) {
-                            val n = raf.read(buf, readTotal, dataLen - readTotal)
+                            val n = channel.read(bb)
                             if (n < 0) break
                             readTotal += n
                         }
