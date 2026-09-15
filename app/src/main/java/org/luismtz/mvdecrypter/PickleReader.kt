@@ -26,7 +26,7 @@ class PickleReader(private val data: ByteArray) {
         while (true) {
             val opcode = readByte()
             when (opcode) {
-                0x80 -> { readByte() } // PROTO + version byte
+                0x80.toByte() -> { readByte() } // PROTO + version byte
                 0x95.toByte() -> { pos += 8 } // FRAME + 8 bytes length (ignorado)
                 '('.code.toByte() -> marks.addLast(stackList.size) // MARK
                 '.'.code.toByte() -> return stackList.removeLastOrNull() // STOP
