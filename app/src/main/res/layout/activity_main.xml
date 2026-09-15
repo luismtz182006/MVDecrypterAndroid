@@ -150,7 +150,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="3. Clave de cifrado"
+                    android:text="3. Modo"
                     android:textColor="@color/text_light"
                     android:textStyle="bold"
                     android:paddingBottom="8dp" />
@@ -166,62 +166,86 @@
                         android:layout_height="wrap_content"
                         android:checked="true"
                         android:textColor="@color/text_light"
-                        android:text="Con clave (imágenes y audio)" />
+                        android:text="Con clave (RPG Maker: imágenes y audio)" />
 
                     <RadioButton
                         android:id="@+id/rbRestorePng"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColor="@color/text_light"
-                        android:text="Restaurar PNG sin clave" />
+                        android:text="Restaurar PNG sin clave (RPG Maker)" />
+
+                    <RadioButton
+                        android:id="@+id/rbExtractRpa"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/text_light"
+                        android:text="Extraer archivo .rpa (Ren'Py)" />
                 </RadioGroup>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnDetectKey"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Detectar clave desde una imagen" />
-
                 <LinearLayout
+                    android:id="@+id/keySection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginTop="8dp">
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                        android:hint="Clave hex (32 caracteres)">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etKey"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="textNoSuggestions"
-                            android:textColor="@color/text_light" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="vertical">
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnCopyKey"
-                        style="@style/Widget.Material3.Button.IconButton"
+                        android:id="@+id/btnDetectKey"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Detectar clave desde una imagen" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="8dp">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                            android:hint="Clave hex (32 caracteres)">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etKey"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textNoSuggestions"
+                                android:textColor="@color/text_light" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnCopyKey"
+                            style="@style/Widget.Material3.Button.IconButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:text="Copiar" />
+                    </LinearLayout>
+
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:text="Copiar" />
+                        android:layout_marginTop="4dp"
+                        android:textColor="@color/text_muted"
+                        android:textSize="12sp"
+                        android:text="Tip: la misma clave sirve para todos los archivos del mismo juego. Detéctala una vez desde cualquier imagen y reutilízala para el audio." />
                 </LinearLayout>
 
                 <TextView
+                    android:id="@+id/tvRpaHint"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="8dp"
                     android:textColor="@color/text_muted"
                     android:textSize="12sp"
-                    android:text="Tip: la misma clave sirve para todos los archivos del mismo juego. Detéctala una vez desde cualquier imagen y reutilízala para el audio." />
+                    android:visibility="gone"
+                    android:text="En este modo, selecciona un solo archivo .rpa en el paso 1. Se extraerán todos los archivos que contiene, respetando sus subcarpetas, dentro de la carpeta de salida." />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
