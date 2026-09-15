@@ -52,6 +52,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var etKey: TextInputEditText
     private lateinit var rgMode: RadioGroup
     private lateinit var rbRestorePng: RadioButton
+    private lateinit var rbExtractRpa: RadioButton
+    private lateinit var keySection: LinearLayout
+    private lateinit var tvRpaHint: TextView
     private lateinit var ivPreview: ImageView
     private lateinit var progressBar: LinearProgressIndicator
     private lateinit var btnDecrypt: Button
@@ -95,10 +98,20 @@ class MainActivity : AppCompatActivity() {
         etKey = findViewById(R.id.etKey)
         rgMode = findViewById(R.id.rgMode)
         rbRestorePng = findViewById(R.id.rbRestorePng)
+        rbExtractRpa = findViewById(R.id.rbExtractRpa)
+        keySection = findViewById(R.id.keySection)
+        tvRpaHint = findViewById(R.id.tvRpaHint)
         ivPreview = findViewById(R.id.ivPreview)
         progressBar = findViewById(R.id.progressBar)
         btnDecrypt = findViewById(R.id.btnDecrypt)
         btnShareLast = findViewById(R.id.btnShareLast)
+
+        rgMode.setOnCheckedChangeListener { _, checkedId ->
+            val isRpa = checkedId == R.id.rbExtractRpa
+            keySection.visibility = if (isRpa) LinearLayout.GONE else LinearLayout.VISIBLE
+            tvRpaHint.visibility = if (isRpa) TextView.VISIBLE else TextView.GONE
+            btnDecrypt.text = if (isRpa) "Extraer" else "Descifrar"
+        }
 
         // Ajustes recordados: carpeta de salida y última clave usada
         prefs.getString(keyLastKey, null)?.let { etKey.setText(it) }
@@ -138,7 +151,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnDecrypt.setOnClickListener {
-            decryptSelected()
+            if (rbExtractRpa.isChecked) extractRpaSelected() else decryptSelected()
         }
 
         btnShareLast.setOnClickListener {
@@ -170,9 +183,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setUiEnabled(enabled: Boolean) {
+    private fun setUiEnabled(enabled: Boolean, idleLabel: String = "Descifrar", activeLabel: String = "Descifrando…") {
         btnDecrypt.isEnabled = enabled
-        btnDecrypt.text = if (enabled) "Descifrar" else "Descifrando…"
+        btnDecrypt.text = if (enabled) idleLabel else activeLabel
     }
 
     private fun decryptSelected() {
@@ -286,6 +299,75 @@ class MainActivity : AppCompatActivity() {
                 }
                 val msg = if (finalFail == 0) "Listo: $finalOk archivo(s) descifrado(s)" else "$finalOk ok, $finalFail con error"
                 Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            }
+        }.start()
+    }
+
+    private fun extractRpaSelected() {
+        tvStatus.text = ""
+        ivPreview.visibility = ImageView.GONE
+        btnShareLast.visibility = ImageView.GONE
+        lastOutputFileUri = null
+
+        val outDir = outputDirUri
+        if (outDir == null) {
+            Toast.makeText(this, "Elige primero una carpeta de salida", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (selectedFiles.isEmpty()) {
+            Toast.makeText(this, "Selecciona un archivo .rpa", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (selectedFiles.size > 1) {
+            log("Nota: solo se procesa el primer archivo seleccionado en modo .rpa (${selectedFiles.size} elegidos).")
+        }
+        val rpaUri = selectedFiles.first()
+
+        val destDir = DocumentFile.fromTreeUri(this, outDir)
+        if (destDir == null || !destDir.isDirectory) {
+            log("No se pudo abrir la carpeta de salida")
+            return
+        }
+
+        progressBar.visibility = LinearProgressIndicator.VISIBLE
+        progressBar.progress = 0
+        setUiEnabled(false, idleLabel = "Extraer", activeLabel = "Extrayendo…")
+
+        Thread {
+            try {
+                val extractor = RpaExtractor(contentResolver)
+                log("Leyendo índice del archivo .rpa…")
+                val entries = extractor.readIndex(rpaUri)
+                log("Índice leído: ${entries.size} archivo(s) dentro del .rpa\n")
+
+                runOnUiThread { progressBar.max = entries.size }
+
+                val (ok, fail) = extractor.extractAll(rpaUri, entries, destDir) { index, total, name ->
+                    log("[${index + 1}/$total] $name")
+                    runOnUiThread { progressBar.progress = index + 1 }
+                }
+
+                runOnUiThread {
+                    log("\nListo: $ok archivo(s) extraído(s), $fail con error.")
+                    progressBar.visibility = LinearProgressIndicator.GONE
+                    setUiEnabled(true, idleLabel = "Extraer")
+                    val msg = if (fail == 0) "Listo: $ok archivo(s) extraído(s)" else "$ok ok, $fail con error"
+                    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: RpaExtractor.UnsupportedRpaException) {
+                log("✘ ${e.message}")
+                runOnUiThread {
+                    progressBar.visibility = LinearProgressIndicator.GONE
+                    setUiEnabled(true, idleLabel = "Extraer")
+                    Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                log("✘ Error inesperado: ${e.message}")
+                runOnUiThread {
+                    progressBar.visibility = LinearProgressIndicator.GONE
+                    setUiEnabled(true, idleLabel = "Extraer")
+                    Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                }
             }
         }.start()
     }
